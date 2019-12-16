@@ -50,10 +50,21 @@ bool ofxWatchShader::setupShaderFromFile(GLenum type, const std::filesystem::pat
 }
 
 bool ofxWatchShader::reloadFile(GLenum type) {
+    std::string before_source = "";
+
+    if (ofShader::getShader(type)) {
+        before_source = ofShader::getShaderSource(type);
+    }
+
     auto result = ofShader::setupShaderFromFile(type, file_paths[type]);
     last_loaded_times[type] = last_write_time(file_paths[type]);
+
     if (result) {
-        ofLogNotice() << "ofxWatchShader load successs: " << file_paths[type].filename();
+        ofLogNotice() << "ofxWatchShader load successs: " << file_paths[type].filename(); // ここは利用者に任せる形でもいいかも
+    } else {
+        if (before_source.empty() == false) {
+            ofShader::setupShaderFromSource(type, before_source);
+        }
     }
     
     return result;
