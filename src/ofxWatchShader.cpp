@@ -35,7 +35,21 @@ bool ofxWatchShader::load(const std::filesystem::path& vertName, const std::file
 }
 
 bool ofxWatchShader::setupShaderFromSource(GLenum type, std::string source, std::string sourceDirectoryPath) {
-    return ofShader::setupShaderFromSource(type, source, sourceDirectoryPath);
+    std::string before_source = "";
+
+    if (ofShader::getShader(type)) {
+        before_source = ofShader::getShaderSource(type);
+    }
+
+    auto result = ofShader::setupShaderFromSource(type, source, sourceDirectoryPath);
+
+    if (result == false) {
+        if (before_source.empty() == false) {
+            ofShader::setupShaderFromSource(type, before_source);
+        }
+    }
+    
+    return result;
 }
 
 bool ofxWatchShader::setupShaderFromFile(GLenum type, const std::filesystem::path& filename, bool watch) {
