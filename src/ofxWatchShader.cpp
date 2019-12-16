@@ -1,6 +1,6 @@
 #include "ofxWatchShader.h"
 #include "ofGLProgrammableRenderer.h"
-#include <boost/filesystem.hpp>
+
 
 void ofxWatchShader::reloadShader() {
 //   const string b_vs = getShaderSource(GL_VERTEX_SHADER);
@@ -52,9 +52,8 @@ bool ofxWatchShader::load(const std::filesystem::path& vertName, const std::file
 }
 
 bool ofxWatchShader::load(const std::filesystem::path& vertName, const std::filesystem::path& fragName, const std::filesystem::path& geomName, bool vertWatch, bool fragWatch, bool geomWatch) {
-    ofLogNotice() << "default";
     if(vertName.empty() == false) setupShaderFromFile(GL_VERTEX_SHADER, vertName, vertWatch);
-	if(fragName.empty() == false) setupShaderFromFile(GL_FRAGMENT_SHADER, fragName, vertFrag);
+	if(fragName.empty() == false) setupShaderFromFile(GL_FRAGMENT_SHADER, fragName, fragWatch);
 #ifndef TARGET_OPENGLES
 	if(geomName.empty() == false) setupShaderFromFile(GL_GEOMETRY_SHADER_EXT, geomName, geomWatch);
 #endif
@@ -69,12 +68,16 @@ bool ofxWatchShader::setupShaderFromSource(GLenum type, std::string source, std:
     return true;
 }
 
-bool ofxWatchShader::setupShaderFromFile(GLenum type, const std::filesystem::path &filename, bool watch) {
-    // watch_flags[type] = watch;
+bool ofxWatchShader::setupShaderFromFile(GLenum type, const std::filesystem::path& filename, bool watch) {
+    watch_flags[type] = watch;
+    file_paths[type] = filename;
+    last_loaded_times[type] = last_write_time(filename);
 
-    // if (watch_flags[type]) {
+/*
+    ofLogNotice() << watch_flags[type];
+    ofLogNotice() << file_paths[type];
+    ofLogNotice() << last_loaded_times[type];
+*/
 
-    // }
-    return ofShader::setupShaderFromFile(type, filename);
-    
+    return ofShader::setupShaderFromFile(type, filename);   
 }
