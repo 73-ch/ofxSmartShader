@@ -1,53 +1,23 @@
 #include "ofxWatchShader.h"
 #include "ofGLProgrammableRenderer.h"
 
-
-void ofxWatchShader::reloadShader() {
-//   const string b_vs = getShaderSource(GL_VERTEX_SHADER);
-//   const string b_fs = getShaderSource(GL_FRAGMENT_SHADER);
-
-//   bool result = setupShaderFromSource(GL_VERTEX_SHADER, vertex_text);
-
-//   if (!result) {
-//     setupShaderFromSource(GL_VERTEX_SHADER, b_vs);
-//     vertex_text = b_vs;
-//   }
-
-//   result = setupShaderFromSource(GL_FRAGMENT_SHADER, fragment_text);
-
-//   if (!result) {
-//     setupShaderFromSource(GL_FRAGMENT_SHADER, b_fs);
-//     fragment_text = b_fs;
-//   }
-
-//   bindDefaults();
-//   linkProgram();
-}
-
-void ofxWatchShader::updateWatcher() {
-
-}
-
-void ofxWatchShader::update() {
-
-}
-
-void ofxWatchShader::watchShader(GLenum type, const std::filesystem::path &filename) {
-
+void ofxWatchShader::update(ofEventArgs &args) {
+    for (auto fp : file_paths) {
+        if (watch_flags[fp.first] && last_loaded_times[fp.first] != last_write_time(fp.second)) {
+            reloadFile(fp.first);
+        }
+    }
 }
 
 bool ofxWatchShader::load(const char * vertName, const char * fragName) {
-    ofLogNotice() << "vert + frag";
     return load(vertName, fragName, false, false);
 }
 
 bool ofxWatchShader::load(const std::filesystem::path& shaderName, bool watch) {
-    ofLogNotice() << "filename";
     return load(shaderName.string() + ".vert", shaderName.string() + ".frag", "", watch, watch, false);
 }
 
 bool ofxWatchShader::load(const std::filesystem::path& vertName, const std::filesystem::path& fragName, bool vertWatch, bool fragWatch) {
-    ofLogNotice() << "vert + frag + bool + bool";
     return load(vertName, fragName, "", vertWatch, fragWatch, false);
 }
 
@@ -65,19 +35,26 @@ bool ofxWatchShader::load(const std::filesystem::path& vertName, const std::file
 }
 
 bool ofxWatchShader::setupShaderFromSource(GLenum type, std::string source, std::string sourceDirectoryPath) {
-    return true;
+    return ofShader::setupShaderFromSource(type, source, sourceDirectoryPath);
 }
 
 bool ofxWatchShader::setupShaderFromFile(GLenum type, const std::filesystem::path& filename, bool watch) {
     watch_flags[type] = watch;
-    file_paths[type] = filename;
-    last_loaded_times[type] = last_write_time(filename);
+    file_paths[type] = ofToDataPath(filename);
 
-/*
-    ofLogNotice() << watch_flags[type];
-    ofLogNotice() << file_paths[type];
-    ofLogNotice() << last_loaded_times[type];
-*/
+    if (watch_flags[type] && !watch_enable) {
+        ofAddListener(ofEvents().update, this, &ofxWatchShader::update, OF_EVENT_ORDER_BEFORE_APP);
+    }
 
-    return ofShader::setupShaderFromFile(type, filename);   
+    return reloadFile(type);
+}
+
+bool ofxWatchShader::reloadFile(GLenum type) {
+    auto result = ofShader::setupShaderFromFile(type, file_paths[type]);
+    last_loaded_times[type] = last_write_time(file_paths[type]);
+    if (result) {
+        ofLogNotice() << "ofxWatchShader load successs: " << file_paths[type].filename();
+    }
+    
+    return result;
 }

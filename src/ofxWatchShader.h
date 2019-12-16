@@ -2,6 +2,7 @@
 
 #include "ofShader.h"
 #include "ofConstants.h"
+#include "ofEvents.h"
 #include "ofFileUtils.h"
 #include "glm/fwd.hpp"
 #include <unordered_map>
@@ -17,30 +18,24 @@ memo:
 
 class ofxWatchShader : public ofShader {
 
-    void reloadShader();
-    void sourceUpdated();
-    void update();
-    void updateWatcher();
+    void update(ofEventArgs &args);
     void watchShader(GLenum type, const std::filesystem::path &filename);
+    bool reloadFile(GLenum type);
 
     std::map<GLenum, bool> watch_flags;
-    std::map<GLenum, std::filesystem::path> file_paths;
-    // {
-    //     std::make_pair(GL_VERTEX_SHADER, std::filesystem::path("")),
-    //     std::make_pair(GL_FRAGMENT_SHADER, std::filesystem::path("")),
-    //     std::make_pair(GL_GEOMETRY_SHADER_EXT, std::filesystem::path("")),
-    //     std::make_pair(GL_COMPUTE_SHADER, std::filesystem::path(""))
-    // };
+    std::map<GLenum, std::filesystem::path> file_paths{
+        std::make_pair(GL_VERTEX_SHADER, std::filesystem::path("")),
+        std::make_pair(GL_FRAGMENT_SHADER, std::filesystem::path("")),
+        std::make_pair(GL_GEOMETRY_SHADER_EXT, std::filesystem::path("")),
+        std::make_pair(GL_COMPUTE_SHADER, std::filesystem::path(""))
+    };
     std::map<GLenum, std::time_t> last_loaded_times;
+    bool watch_enable = false;
 
 public:
     void watchFile(GLenum type, const std::string path);
 
-    // using ofShader::setupShaderFromSource;
-    // using ofShader::setupShaderFromFile;
-    // using ofShader::load;
-
-    static const std::time_t last_write_time(const std::filesystem::path& filename) {
+    const std::time_t last_write_time(const std::filesystem::path& filename) {
         auto absolute = boost::filesystem::absolute(filename);
         struct stat stat_buf;
         stat(absolute.c_str(), &stat_buf);
