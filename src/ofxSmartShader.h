@@ -16,7 +16,7 @@ memo:
     typeを一つの構造体にしたほうが良さそう
 */
 
-class ofxWatchShader : public ofShader {
+class ofxSmartShader : public ofShader {
 
     void update(ofEventArgs &args);
     void watchShader(GLenum type, const std::filesystem::path &filename);
