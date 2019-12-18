@@ -23,14 +23,35 @@ class ofxSmartShader : public ofShader {
     bool reloadFile(GLenum type);
 
     std::map<GLenum, bool> watch_flags;
+    std::map<GLenum, bool> file_updated;
     std::map<GLenum, std::filesystem::path> file_paths{
         std::make_pair(GL_VERTEX_SHADER, std::filesystem::path("")),
         std::make_pair(GL_FRAGMENT_SHADER, std::filesystem::path("")),
+#ifndef TARGET_OPENGLES
         std::make_pair(GL_GEOMETRY_SHADER_EXT, std::filesystem::path("")),
-        std::make_pair(GL_COMPUTE_SHADER, std::filesystem::path(""))
+#endif
     };
     std::map<GLenum, std::time_t> last_loaded_times;
+    std::map<GLenum, std::string> current_sources{
+        std::make_pair(GL_VERTEX_SHADER, ""),
+        std::make_pair(GL_FRAGMENT_SHADER, ""),
+        std::make_pair(GL_GEOMETRY_SHADER_EXT, "")
+    };
     bool watch_enable = false;
+
+    std::string nameForType(GLenum type){
+	    switch(type) {
+            case GL_VERTEX_SHADER: return "GL_VERTEX_SHADER";
+            case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
+#ifndef TARGET_OPENGLES
+		    case GL_GEOMETRY_SHADER_EXT: return "GL_GEOMETRY_SHADER_EXT";
+#ifdef glDispatchCompute
+		    case GL_COMPUTE_SHADER: return "GL_COMPUTE_SHADER";
+#endif
+#endif
+		    default: return "UNKNOWN SHADER TYPE";
+	    }
+    }
 
 public:
     void watchFile(GLenum type, const std::string path);
