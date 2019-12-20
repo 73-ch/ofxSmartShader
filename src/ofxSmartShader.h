@@ -65,6 +65,7 @@ public:
     }
 
     bool load(const char * vertName, const char * fragName);
+    bool load(const std::string vertName, std::string fragName);
     bool load(const std::filesystem::path& shaderName, bool watch);
     bool load(const std::filesystem::path& vertName, const std::filesystem::path& fragName, bool vertWatch = false, bool fragWatch = false);
 	bool load(const std::filesystem::path& vertName, const std::filesystem::path& fragName, const std::filesystem::path& geomName="", bool vertWatch = false, bool fragWatch = false, bool geomWatch = false);

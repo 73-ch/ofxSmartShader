@@ -37,6 +37,9 @@ void ofxSmartShader::update(ofEventArgs &args) {
 bool ofxSmartShader::load(const char * vertName, const char * fragName) {
     return load(vertName, fragName, false, false);
 }
+bool ofxSmartShader::load(std::string vertName, std::string fragName) {
+    return load(vertName, fragName, false, false);
+}
 
 bool ofxSmartShader::load(const std::filesystem::path& shaderName, bool watch) {
     return load(shaderName.string() + ".vert", shaderName.string() + ".frag", "", watch, watch, false);
