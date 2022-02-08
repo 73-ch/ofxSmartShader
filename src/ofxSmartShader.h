@@ -57,11 +57,8 @@ public:
     void watchFile(GLenum type, const std::string path);
 
     const std::time_t last_write_time(const std::filesystem::path& filename) {
-        auto absolute = boost::filesystem::absolute(filename);
-        struct stat stat_buf;
-        stat(absolute.c_str(), &stat_buf);
-
-        return stat_buf.st_mtime;
+        const auto file = ofFile(filename);
+        return std::filesystem::last_write_time(file);
     }
 
     bool load(const char * vertName, const char * fragName);
